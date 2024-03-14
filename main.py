@@ -22,11 +22,11 @@ class GameManager:
         self.where_mole = 0
         self.start_time = pygame.time.get_ticks()
         self.clock = pygame.time.Clock()
-        self.SCREEN_WIDTH = 1600
-        self.SCREEN_HEIGHT = 900
+        self.SCREEN_WIDTH = 1900
+        self.SCREEN_HEIGHT = 1000
         self.FPS = 60
-        self.MOLE_WIDTH = 100
-        self.MOLE_HEIGHT = 100
+        self.MOLE_WIDTH = 150
+        self.MOLE_HEIGHT = 150
         self.FONT_SIZE = 31
         self.FONT_TOP_MARGIN = 26
         self.LEVEL_SCORE_GAP = 4
@@ -40,7 +40,7 @@ class GameManager:
         # Initialize screen
         self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT),RESIZABLE)
         pygame.display.set_caption(self.GAME_TITLE)
-        self.background = pygame.image.load("images/forest.jpg")
+        self.background = pygame.image.load("images/white-background.jpg")
         # Font object for displaying text
         self.font_obj = pygame.font.Font('./fonts/GROBOLD.ttf', self.FONT_SIZE)
         # Initialize the mole's sprite sheet
@@ -625,7 +625,7 @@ my_game = GameManager()
 # my_game.start()
 
 # Constants
-WIDTH, HEIGHT = 1600,900
+WIDTH, HEIGHT = 1900,1000
 MENU_FONT_SIZE = 36
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
