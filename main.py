@@ -6,11 +6,13 @@ from pygame import *
 class GameManager:
     def __init__(self):
         # Define constants
-        self.SCREEN_WIDTH = 800
-        self.SCREEN_HEIGHT = 600
+        self.start_time = pygame.time.get_ticks()
+        self.clock = pygame.time.Clock()
+        self.SCREEN_WIDTH = 1900
+        self.SCREEN_HEIGHT = 1000
         self.FPS = 60
-        self.MOLE_WIDTH = 90
-        self.MOLE_HEIGHT = 81
+        self.MOLE_WIDTH = 100
+        self.MOLE_HEIGHT = 100
         self.FONT_SIZE = 31
         self.FONT_TOP_MARGIN = 26
         self.LEVEL_SCORE_GAP = 4
@@ -20,6 +22,7 @@ class GameManager:
         self.score = 0
         self.misses = 0
         self.level = 1
+        self.time = 30
         # Initialize screen
         self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
         pygame.display.set_caption(self.GAME_TITLE)
@@ -100,9 +103,16 @@ class GameManager:
         current_level_string = "LEVEL: " + str(self.level)
         level_text = self.font_obj.render(current_level_string, True, (255, 255, 255))
         level_text_pos = level_text.get_rect()
-        level_text_pos.centerx = self.SCREEN_WIDTH / 5 * 1
+        level_text_pos.centerx = self.SCREEN_WIDTH / 5*2
         level_text_pos.centery = self.FONT_TOP_MARGIN
         self.screen.blit(level_text, level_text_pos)
+        
+        current_test = "LEVgygk: " + str(self.countdown)
+        level_test = self.font_obj.render(current_test, True, (255, 255, 255))
+        level_test_pos = level_test.get_rect()
+        level_test_pos.centerx = self.SCREEN_WIDTH / 5
+        level_test_pos.centery = self.FONT_TOP_MARGIN*3
+        self.screen.blit(level_test, level_test_pos)
 
     # Start the game's main loop
     # Contains some logic for handling animations, mole hit events, etc..
@@ -112,7 +122,7 @@ class GameManager:
         loop = True
         is_down = False
         interval = 0.1
-        initial_interval = 1
+        initial_interval = 2
         frame_num = 0
         left = 0
         # Time control variables
@@ -123,9 +133,20 @@ class GameManager:
             self.mole[i] = self.mole[i].convert_alpha()
 
         while loop:
+            # Calculate remaining time
+            self.current_time = pygame.time.get_ticks()
+            elapsed_time = self.current_time - self.start_time
+            remaining_seconds = max(0, self.time - elapsed_time // 1200)
+            self.countdown = remaining_seconds
             for event in pygame.event.get():
+                # กดอะไรแล้วทำ อะไร
+                if self.countdown == 0:
+                    loop = False
                 if event.type == pygame.QUIT:
                     loop = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        loop = False
                 if event.type == MOUSEBUTTONDOWN and event.button == self.LEFT_MOUSE_BUTTON:
                     self.soundEffect.playFire()
                     if self.is_mole_hit(mouse.get_pos(), self.hole_positions[frame_num]) and num > 0 and left == 0:
@@ -143,7 +164,6 @@ class GameManager:
                     else:
                         self.misses += 1
                         self.update()
-
             if num > 5:
                 self.screen.blit(self.background, (0, 0))
                 self.update()
@@ -161,6 +181,8 @@ class GameManager:
             mil = clock.tick(self.FPS)
             sec = mil / 1000.0
             cycle_time += sec
+            self.what_time = cycle_time
+            
             if cycle_time > interval:
                 pic = self.mole[num]
                 self.screen.blit(self.background, (0, 0))
@@ -176,7 +198,8 @@ class GameManager:
                     num -= 1
                     is_down = True
                     self.soundEffect.playPop()
-                    interval = self.get_interval_by_level(initial_interval)  # get the newly decreased interval value
+                    # interval = self.get_interval_by_level(initial_interval)
+                    interval = 2 # get the newly decreased interval value
                 else:
                     interval = 0.1
                 cycle_time = 0
@@ -197,11 +220,18 @@ class Debugger:
 class SoundEffect:
     def __init__(self):
         self.mainTrack = pygame.mixer.music.load("sounds/themesong.wav")
+        pygame.mixer.music.set_volume(0.01)
         self.fireSound = pygame.mixer.Sound("sounds/fire.wav")
-        self.fireSound.set_volume(1.0)
+        self.fireSound.set_volume(0.1)
+        
         self.popSound = pygame.mixer.Sound("sounds/pop.wav")
+        self.popSound.set_volume(0.01)
+        
         self.hurtSound = pygame.mixer.Sound("sounds/hurt.wav")
+        self.hurtSound.set_volume(0.01)
+        
         self.levelSound = pygame.mixer.Sound("sounds/point.wav")
+        self.levelSound.set_volume(0.01)
         pygame.mixer.music.play(-1)
 
     def playFire(self):
